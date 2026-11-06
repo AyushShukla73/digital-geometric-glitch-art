@@ -34,14 +34,20 @@ A web-based image processing tool that transforms uploaded images through a geom
 
 ## Screenshots
 
-| Step | Description |
-|------|-------------|
-| ![Step 1: 2×2 Mirror Grid](screenshots/step1-mirror-grid.png) | **2×2 Mirror Grid** — Original, horizontally mirrored, vertically mirrored, and both mirrored |
-| ![Step 2: Vertical Strip Recombination](screenshots/step2-vertical-strips.png) | **Vertical Strip Recombination** — Split into 40px strips, recombined alternating from left/right edges |
-| ![Step 3: Horizontal Strip Recombination](screenshots/step3-horizontal-strips.png) | **Horizontal Strip Recombination** — Split into 40px strips, recombined alternating from top/bottom edges |
-| ![Step 4: Final Result](screenshots/step4-final-result.png) | **Final Glitch Art** — Downloadable result after all transformations |
+### Pipeline Steps
 
-*Add your screenshots to the `screenshots/` folder in the project root. The images above use relative paths that work on GitHub Pages.*
+| Step | Preview | Description |
+|------|---------|-------------|
+| **Original** | ![Initial Image](screenshots/initial%20image.png) | Source image before processing |
+| **Step 1: 2×2 Mirror Grid** | ![Complete 2×2 Grid](screenshots/Complete%202%C3%972%20Grid.png) | Original, horizontally mirrored, vertically mirrored, and both mirrored combined |
+| **Step 2: Vertical Strips** | ![Split Vertical](screenshots/Split%20into%2040px%20vertical%20strips.png) | Split into 40px vertical strips |
+| | ![Recombined Vertical](screenshots/Recombined%20(left,%20right,%20left%2B1,%20right-1...).png) | Recombined alternating from left/right edges |
+| | ![Joined Vertical](screenshots/Joined%20result.png) | Joined vertical recombination result |
+| **Step 3: Horizontal Strips** | ![Split Horizontal](screenshots/Split%20into%20horizontal%20strips.png) | Split into 40px horizontal strips |
+| | ![Joined Horizontal](screenshots/Joined%20result.png) | Joined horizontal recombination result |
+| **Step 4: Final Result** | ![Final Processed](screenshots/final%20processed%20image.png) | Final glitch art after all transformations |
+
+*Images use URL-encoded paths that work on GitHub Pages. Add/replace screenshots in the `screenshots/` folder as needed.*
 
 ## Local Development
 
