@@ -47,7 +47,6 @@ A web-based image processing tool that transforms uploaded images through a geom
 | | ![Joined Horizontal](screenshots/Joined%20result.png) | Joined horizontal recombination result |
 | **Step 4: Final Result** | ![Final Processed](screenshots/final%20processed%20image.png) | Final glitch art after all transformations |
 
-*Images use URL-encoded paths that work on GitHub Pages. Add/replace screenshots in the `screenshots/` folder as needed.*
 
 ## Local Development
 
