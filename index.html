@@ -3,109 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Geometric Glitch Art Generator</title>
+    <title>Glitch Lab — Geometric Image Processor</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #11111a;
-            --bg-tertiary: #1a1a2e;
-            --fg-primary: #f0f0f5;
-            --fg-secondary: #a0a0b0;
-            --fg-muted: #6a6a7a;
-            --accent: #00ffc8;
-            --accent-dim: #00c8a0;
-            --accent-glow: rgba(0, 255, 200, 0.4);
-            --accent-soft: rgba(0, 255, 200, 0.1);
-            --border: #2a2a3e;
-            --border-bright: #3a3a52;
-            --card-bg: rgba(26, 26, 46, 0.8);
-            --card-border: rgba(58, 58, 82, 0.5);
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 8px 48px rgba(0, 0, 0, 0.5);
-            --radius: 12px;
-            --radius-sm: 8px;
-            --transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --font-display: 'Space Grotesk', sans-serif;
-            --font-ui: 'Inter', sans-serif;
+            --bg: #09090b;
+            --bg-elevated: #111113;
+            --fg: #fafafa;
+            --fg-dim: #71717a;
+            --fg-muted: #3f3f46;
+            --accent: #e8ff00;
+            --accent-dim: #c4d600;
+            --accent-soft: rgba(232, 255, 0, 0.08);
+            --border: #27272a;
+            --border-bright: #3f3f46;
+            --card: #141416;
+            --shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.4);
+            --shadow-lg: 0 0 0 1px rgba(255,255,255,0.05), 0 24px 64px rgba(0,0,0,0.5);
+            --radius: 4px;
+            --radius-lg: 8px;
+            --transition: 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --font-display: 'Syne', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
             --strip-width: 40px;
         }
 
         @media (prefers-color-scheme: light) {
             :root {
-                --bg-primary: #f8f9fc;
-                --bg-secondary: #ffffff;
-                --bg-tertiary: #f0f2f8;
-                --fg-primary: #1a1a2e;
-                --fg-secondary: #5a5a6e;
-                --fg-muted: #8a8a9e;
-                --accent: #00b894;
-                --accent-dim: #009876;
-                --accent-glow: rgba(0, 184, 148, 0.4);
-                --accent-soft: rgba(0, 184, 148, 0.1);
-                --border: #e0e4ee;
-                --border-bright: #c8cce4;
-                --card-bg: rgba(255, 255, 255, 0.9);
-                --card-border: rgba(200, 204, 228, 0.5);
-                --shadow: 0 4px 24px rgba(26, 26, 46, 0.08);
-                --shadow-lg: 0 8px 48px rgba(26, 26, 46, 0.12);
+                --bg: #fafafa;
+                --bg-elevated: #ffffff;
+                --fg: #09090b;
+                --fg-dim: #52525b;
+                --fg-muted: #d4d4d8;
+                --accent: #a3b000;
+                --accent-dim: #859000;
+                --accent-soft: rgba(163, 176, 0, 0.1);
+                --border: #e4e4e7;
+                --border-bright: #d4d4d8;
+                --card: #ffffff;
+                --shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.06);
+                --shadow-lg: 0 0 0 1px rgba(0,0,0,0.06), 0 24px 64px rgba(0,0,0,0.1);
             }
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes revealUp {
+            from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        @keyframes revealLeft {
+            from { opacity: 0; transform: translateX(-24px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        @keyframes borderGlow {
-            0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
-            50% { box-shadow: 0 0 0 8px transparent; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 var(--accent); }
+            50% { box-shadow: 0 0 24px 4px rgba(232, 255, 0, 0.3); }
         }
 
         @keyframes shimmer {
             0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            100% { transform: translateX(200%); }
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(200vh); }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
-
-        html {
-            font-size: 16px;
-        }
+        html { font-size: 16px; }
 
         body {
-            font-family: var(--font-ui);
-            background: var(--bg-primary);
-            color: var(--fg-primary);
+            font-family: var(--font-mono);
+            background: var(--bg);
+            color: var(--fg);
             min-height: 100vh;
-            padding: 40px 20px;
-            line-height: 1.6;
+            line-height: 1.55;
             transition: background var(--transition), color var(--transition);
+            overflow-x: hidden;
         }
 
         body::before {
@@ -113,519 +96,564 @@
             position: fixed;
             inset: 0;
             background:
-                radial-gradient(ellipse 80% 50% at 50% 0%, var(--accent-soft) 0%, transparent 70%),
-                radial-gradient(ellipse 60% 40% at 100% 100%, var(--accent-soft) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 40% at 0% 100%, var(--accent-soft) 0%, transparent 60%);
+                linear-gradient(90deg, transparent 50%, var(--accent-soft) 50%, transparent 50%),
+                linear-gradient(180deg, transparent 50%, var(--accent-soft) 50%, transparent 50%);
+            background-size: 60px 60px;
+            opacity: 0.03;
             pointer-events: none;
             z-index: -1;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            animation: fadeInUp 0.8s var(--transition);
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.6;
         }
 
+        .wrap {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* Header — Editorial / Brutalist */
         header {
-            text-align: center;
-            margin-bottom: 48px;
-            animation: fadeInUp 0.8s var(--transition) 0.1s both;
+            margin-bottom: 56px;
+            animation: revealUp 600ms var(--transition);
+        }
+
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 32px;
+            align-items: end;
         }
 
         h1 {
             font-family: var(--font-display);
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--fg-primary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 12px;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            color: var(--fg);
         }
 
-        .subtitle {
-            font-size: 1.1rem;
-            color: var(--fg-secondary);
-            font-weight: 400;
-            max-width: 600px;
-            margin: 0 auto;
+        h1 em {
+            font-style: normal;
+            color: var(--accent);
         }
 
-        /* Pipeline Steps Indicator */
+        .tagline {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 300;
+            color: var(--fg-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-top: 8px;
+        }
+
+        .meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: right;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--fg-muted);
+            white-space: nowrap;
+        }
+
+        .meta span::before {
+            content: '[';
+        }
+        .meta span::after {
+            content: ']';
+        }
+
+        /* Pipeline — Compact horizontal */
         .pipeline {
             display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 12px;
             margin-bottom: 48px;
-            padding: 0 20px;
-            animation: fadeInUp 0.8s var(--transition) 0.2s both;
-            flex-wrap: wrap;
+            padding: 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow-x: auto;
+            animation: revealUp 600ms var(--transition) 100ms both;
         }
 
-        .pipeline-step {
+        .pipeline::-webkit-scrollbar { height: 4px; }
+        .pipeline::-webkit-scrollbar-track { background: transparent; }
+        .pipeline::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+        .pipe-step {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
+            padding: 8px 16px;
+            min-width: 120px;
+            flex-shrink: 0;
             position: relative;
-            flex: 1;
-            min-width: 140px;
-            max-width: 200px;
         }
 
-        .pipeline-step:not(:last-child)::after {
+        .pipe-step:not(:last-child)::after {
             content: '';
             position: absolute;
-            top: 20px;
-            right: -50%;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, var(--border), var(--border-bright), var(--border));
-            z-index: 0;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 60%;
+            background: var(--border);
         }
 
-        .pipeline-step.active:not(:last-child)::after {
-            background: linear-gradient(90deg, var(--accent), var(--accent-dim), var(--accent));
-            animation: shimmer 2s infinite;
+        .pipe-step.active:not(:last-child)::after {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
         }
 
-        .pipeline-step.completed:not(:last-child)::after {
+        .pipe-step.completed:not(:last-child)::after {
             background: var(--accent);
         }
 
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .pipe-num {
             font-family: var(--font-display);
-            font-weight: 600;
-            font-size: 1rem;
+            font-size: 1.5rem;
+            font-weight: 800;
             color: var(--fg-muted);
-            background: var(--bg-secondary);
-            border: 2px solid var(--border);
-            position: relative;
-            z-index: 1;
-            transition: all var(--transition);
-        }
-
-        .pipeline-step.active .step-circle {
-            background: var(--accent);
-            color: var(--bg-primary);
-            border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
-            animation: pulse 1.5s infinite;
-        }
-
-        .pipeline-step.completed .step-circle {
-            background: var(--accent);
-            color: var(--bg-primary);
-            border-color: var(--accent);
-        }
-
-        .pipeline-step.completed .step-circle::after {
-            content: '✓';
-            font-size: 1.1rem;
-        }
-
-        .step-label {
-            font-family: var(--font-display);
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-align: center;
-            color: var(--fg-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            line-height: 1.3;
             transition: color var(--transition);
         }
 
-        .pipeline-step.active .step-label,
-        .pipeline-step.completed .step-label {
+        .pipe-step.active .pipe-num,
+        .pipe-step.completed .pipe-num {
             color: var(--accent);
         }
 
-        /* Upload Area */
+        .pipe-step.completed .pipe-num::after {
+            content: ' ✓';
+            font-size: 1rem;
+        }
+
+        .pipe-label {
+            font-family: var(--font-display);
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--fg-muted);
+            white-space: nowrap;
+            transition: color var(--transition);
+        }
+
+        .pipe-step.active .pipe-label,
+        .pipe-step.completed .pipe-label {
+            color: var(--accent);
+        }
+
+        /* Upload — Asymmetric card */
         .upload-section {
-            margin-bottom: 40px;
-            animation: fadeInUp 0.8s var(--transition) 0.3s both;
+            margin-bottom: 48px;
+            animation: revealLeft 600ms var(--transition) 150ms both;
         }
 
-        .upload-area {
-            position: relative;
-            border: 2px dashed var(--border);
-            border-radius: var(--radius);
-            padding: 60px 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all var(--transition);
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
+        .upload-card {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
             overflow: hidden;
+            position: relative;
         }
 
-        .upload-area::before {
+        .upload-card::before {
             content: '';
             position: absolute;
-            inset: -2px;
-            border-radius: calc(var(--radius) + 2px);
-            background: linear-gradient(135deg, var(--accent), var(--accent-dim), var(--accent));
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent) 0%, transparent 50%);
             opacity: 0;
             transition: opacity var(--transition);
-            z-index: -1;
-            animation: borderGlow 3s infinite;
+            z-index: 0;
         }
 
-        .upload-area:hover::before,
-        .upload-area.dragover::before,
-        .upload-area:focus-within::before {
-            opacity: 1;
+        .upload-card:hover::before,
+        .upload-card.dragover::before,
+        .upload-card:focus-within::before {
+            opacity: 0.06;
         }
 
-        .upload-area:hover,
-        .upload-area.dragover,
-        .upload-area:focus-within {
-            border-color: transparent;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+        .upload-main {
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
         }
 
-        .upload-area:focus-within {
-            outline: none;
-        }
-
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            display: block;
-        }
-
-        .upload-text {
+        .upload-label {
             font-family: var(--font-display);
-            font-size: 1.25rem;
-            font-weight: 500;
-            color: var(--fg-primary);
-            margin-bottom: 8px;
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 600;
+            color: var(--fg);
+        }
+
+        .upload-label em {
+            font-style: normal;
+            color: var(--accent);
         }
 
         .upload-hint {
-            font-size: 0.9rem;
-            color: var(--fg-muted);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--fg-dim);
         }
 
-        .upload-area input {
+        .upload-side {
+            position: relative;
+            background: var(--bg);
+            border-left: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-side::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent, var(--accent-soft), transparent);
+        }
+
+        .drop-zone {
+            position: relative;
+            z-index: 1;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .drop-icon {
+            font-size: 2.5rem;
+            line-height: 1;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .drop-text {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--fg);
+        }
+
+        .drop-hint {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--fg-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .upload-card input {
             position: absolute;
             inset: 0;
             opacity: 0;
             cursor: pointer;
+            z-index: 10;
         }
 
-        /* Progress Bar */
-        .progress-container {
+        .upload-card:focus-within {
+            outline: 2px solid var(--accent);
+            outline-offset: -2px;
+        }
+
+        /* Progress */
+        .progress-wrap {
+            margin-top: 16px;
+            animation: revealUp 300ms var(--transition);
             display: none;
-            margin-top: 24px;
-            animation: slideIn 0.4s var(--transition);
         }
 
-        .progress-container.visible {
-            display: block;
+        .progress-wrap.visible { display: block; }
+
+        .progress-track {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
         }
 
         .progress-bar {
-            height: 4px;
-            background: var(--bg-tertiary);
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, var(--accent), var(--accent-dim));
+            background: var(--accent);
             border-radius: 2px;
-            transition: width 0.3s var(--transition);
+            transition: width 200ms var(--transition);
             position: relative;
         }
 
-        .progress-fill::after {
+        .progress-bar::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            animation: shimmer 1.5s infinite;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            animation: shimmer 1.2s infinite;
         }
 
-        .progress-text {
+        .progress-meta {
             display: flex;
             justify-content: space-between;
             margin-top: 8px;
-            font-size: 0.8rem;
-            color: var(--fg-secondary);
-            font-family: var(--font-display);
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--fg-dim);
         }
 
-        /* Loading Overlay */
-        .loading-overlay {
+        /* Loading overlay */
+        .loader {
             position: fixed;
             inset: 0;
-            background: rgba(10, 10, 15, 0.95);
-            backdrop-filter: blur(8px);
+            background: rgba(9, 9, 11, 0.96);
+            backdrop-filter: blur(12px);
             display: none;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-            flex-direction: column;
             gap: 24px;
+            z-index: 1000;
         }
 
-        .loading-overlay.visible {
-            display: flex;
+        .loader.visible { display: flex; }
+
+        @media (prefers-color-scheme: light) {
+            .loader { background: rgba(250, 250, 250, 0.96); }
         }
 
-        .spinner {
-            width: 56px;
-            height: 56px;
+        .loader-ring {
+            width: 64px;
+            height: 64px;
             border: 3px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
-        .loading-text {
+        .loader-text {
             font-family: var(--font-display);
             font-size: 1.25rem;
-            font-weight: 500;
-            color: var(--fg-primary);
+            font-weight: 600;
+            color: var(--fg);
         }
 
-        .loading-subtext {
-            color: var(--fg-muted);
-            font-size: 0.9rem;
+        .loader-sub {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--fg-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
         }
 
-        /* Results */
+        /* Results — Compact grid with tabs */
         .results {
             display: none;
+            animation: revealUp 500ms var(--transition);
         }
 
-        .results.visible {
-            display: block;
-            animation: fadeInUp 0.6s var(--transition);
+        .results.visible { display: block; }
+
+        /* Tabs */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            padding: 4px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow-x: auto;
         }
 
-        .result-row {
-            margin-bottom: 48px;
+        .tab-bar::-webkit-scrollbar { height: 4px; }
+        .tab-bar::-webkit-scrollbar-track { background: transparent; }
+        .tab-bar::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+        .tab {
+            padding: 10px 20px;
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--fg-dim);
+            background: transparent;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all var(--transition);
+            flex-shrink: 0;
         }
 
-        .result-header {
+        .tab:hover { color: var(--fg); background: var(--bg); }
+        .tab.active {
+            color: var(--bg);
+            background: var(--accent);
+        }
+
+        .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        /* Panels */
+        .panel { display: none; }
+        .panel.active { display: block; animation: revealUp 300ms var(--transition); }
+
+        .panel-head {
             display: flex;
             align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 20px;
             padding-bottom: 16px;
             border-bottom: 1px solid var(--border);
         }
 
-        .result-number {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: var(--accent-soft);
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-display);
-            font-weight: 600;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        .result-title {
+        .panel-title {
             font-family: var(--font-display);
             font-size: 1.25rem;
             font-weight: 600;
-            color: var(--fg-primary);
+            color: var(--fg);
         }
 
-        .result-desc {
-            color: var(--fg-secondary);
-            font-size: 0.95rem;
-            margin-left: auto;
+        .panel-desc {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--fg-dim);
+            max-width: 400px;
         }
 
+        /* Canvas Grid — Compact, uniform */
         .canvas-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
         }
 
-        .canvas-wrapper {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius);
-            padding: 16px;
-            transition: all var(--transition);
-            position: relative;
+        .canvas-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
             overflow: hidden;
+            transition: all var(--transition);
         }
 
-        .canvas-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0;
-            transition: opacity var(--transition);
-        }
-
-        .canvas-wrapper:hover {
-            transform: translateY(-4px);
+        .canvas-card:hover {
+            border-color: var(--accent);
             box-shadow: var(--shadow-lg);
-            border-color: var(--accent-glow);
         }
 
-        .canvas-wrapper:hover::before {
-            opacity: 1;
-        }
-
-        .canvas-wrapper canvas {
+        .canvas-card canvas {
             display: block;
             width: 100%;
             height: auto;
-            border-radius: 8px;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
             image-rendering: pixelated;
         }
 
-        .canvas-label {
-            font-size: 0.8rem;
-            color: var(--fg-muted);
-            text-align: center;
-            margin-top: 12px;
-            font-weight: 500;
+        .canvas-meta {
+            padding: 12px 16px;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--fg-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
         }
 
-        /* Download Button */
-        .download-section {
-            text-align: center;
+        /* Download — Prominent */
+        .download-wrap {
             margin-top: 32px;
             padding-top: 32px;
             border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
         }
 
-        .download-btn {
+        .btn-dl {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 16px 36px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-            color: var(--bg-primary);
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
+            padding: 16px 32px;
             font-family: var(--font-display);
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
+            color: var(--bg);
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
             transition: all var(--transition);
-            box-shadow: 0 4px 16px var(--accent-glow);
+            box-shadow: 0 4px 24px rgba(232, 255, 0, 0.3);
         }
 
-        .download-btn:hover:not(:disabled) {
+        .btn-dl:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px var(--accent-glow);
+            box-shadow: 0 8px 32px rgba(232, 255, 0, 0.45);
         }
 
-        .download-btn:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .download-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .download-btn:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 3px;
-        }
+        .btn-dl:active:not(:disabled) { transform: translateY(0); }
+        .btn-dl:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+        .btn-dl:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
         /* Footer */
         footer {
-            text-align: center;
-            margin-top: 60px;
+            margin-top: 64px;
             padding-top: 32px;
             border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
             color: var(--fg-muted);
-            font-size: 0.85rem;
         }
 
-        footer a {
-            color: var(--accent);
-            text-decoration: none;
-            transition: opacity var(--transition);
-        }
-
-        footer a:hover {
-            opacity: 0.7;
-        }
+        footer a { color: var(--accent); text-decoration: none; transition: opacity var(--transition); }
+        footer a:hover { opacity: 0.6; }
 
         /* Responsive */
-        @media (max-width: 768px) {
-            .pipeline-step:not(:last-child)::after {
-                display: none;
-            }
-
-            .pipeline {
-                gap: 20px;
-            }
-
-            .canvas-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .upload-area {
-                padding: 40px 24px;
-            }
-
-            .result-desc {
-                display: none;
-            }
+        @media (max-width: 860px) {
+            .header-grid { grid-template-columns: 1fr; gap: 24px; text-align: center; }
+            .meta { text-align: center; }
+            .upload-card { grid-template-columns: 1fr; }
+            .upload-side { border-left: none; border-top: 1px solid var(--border); min-height: 120px; }
+            .tab-bar { padding: 4px; }
+            .tab { padding: 8px 16px; font-size: 0.7rem; }
+            footer { flex-direction: column; gap: 12px; text-align: center; }
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 24px 16px;
-            }
-
-            h1 {
-                font-size: 1.75rem;
-            }
-
-            .upload-area {
-                padding: 32px 20px;
-            }
-
-            .canvas-wrapper {
-                padding: 12px;
-            }
+            .wrap { padding: 32px 16px 64px; }
+            h1 { font-size: 2rem; }
+            .upload-main { padding: 32px 24px; }
+            .canvas-grid { grid-template-columns: 1fr; }
         }
 
         /* Reduced motion */
         @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
+            *, *::before, *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
@@ -634,506 +662,322 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="wrap">
         <header>
-            <h1>Digital Geometric Glitch Art</h1>
-            <p class="subtitle">Transform images through a geometric glitch pipeline — mirror, slice, and recombine into striking visual artifacts</p>
+            <div class="header-grid">
+                <div>
+                    <h1>Glitch <em>Lab</em></h1>
+                    <p class="tagline">Geometric image processor — mirror, slice, recombine</p>
+                </div>
+                <div class="meta">
+                    <span>vanilla js</span>
+                    <span>canvas api</span>
+                    <span>no deps</span>
+                </div>
+            </div>
         </header>
 
-        <nav class="pipeline" aria-label="Processing pipeline steps">
-            <div class="pipeline-step" data-step="1">
-                <div class="step-circle">1</div>
-                <span class="step-label">Mirror 2×2</span>
-            </div>
-            <div class="pipeline-step" data-step="2">
-                <div class="step-circle">2</div>
-                <span class="step-label">Vertical Split</span>
-            </div>
-            <div class="pipeline-step" data-step="3">
-                <div class="step-circle">3</div>
-                <span class="step-label">Horizontal Split</span>
-            </div>
-            <div class="pipeline-step" data-step="4">
-                <div class="step-circle">4</div>
-                <span class="step-label">Final Result</span>
-            </div>
+        <nav class="pipeline" aria-label="Processing pipeline">
+            <div class="pipe-step" data-step="1"><div class="pipe-num">01</div><span class="pipe-label">Mirror 2×2</span></div>
+            <div class="pipe-step" data-step="2"><div class="pipe-num">02</div><span class="pipe-label">Vertical Strips</span></div>
+            <div class="pipe-step" data-step="3"><div class="pipe-num">03</div><span class="pipe-label">Horizontal Strips</span></div>
+            <div class="pipe-step" data-step="4"><div class="pipe-num">04</div><span class="pipe-label">Export</span></div>
         </nav>
 
         <section class="upload-section">
-            <div class="upload-area" id="uploadArea" tabindex="0" role="button" aria-label="Upload image">
-                <span class="upload-icon">📁</span>
-                <span class="upload-text">Click or drag & drop an image</span>
-                <p class="upload-hint">PNG, JPG, WebP, GIF · Max 50MB</p>
+            <div class="upload-card" id="uploadCard" tabindex="0" role="button" aria-label="Upload image for processing">
+                <div class="upload-main">
+                    <p class="upload-label">Drop an <em>image</em> here</p>
+                    <p class="upload-hint">PNG · JPG · WebP · GIF · Max 50MB</p>
+                </div>
+                <div class="upload-side">
+                    <div class="drop-zone">
+                        <div class="drop-icon">↗</div>
+                        <p class="drop-text">Drag & drop</p>
+                        <p class="drop-hint">or click to browse</p>
+                    </div>
+                </div>
                 <input type="file" id="fileInput" accept="image/*" aria-hidden="true">
             </div>
-            <div class="progress-container" id="progressContainer">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text">
-                    <span id="progressLabel">Initializing...</span>
+            <div class="progress-wrap" id="progressWrap">
+                <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+                <div class="progress-meta">
+                    <span id="progressLabel">Initializing…</span>
                     <span id="progressPercent">0%</span>
                 </div>
             </div>
         </section>
 
         <section class="results" id="results" aria-live="polite">
-            <!-- Step 1: 2x2 Mirror -->
-            <div class="result-row">
-                <div class="result-header">
-                    <div class="result-number">1</div>
-                    <h2 class="result-title">2×2 Mirror Grid</h2>
-                    <p class="result-desc">Original, horizontal, vertical, and both mirrors combined</p>
+            <div class="tab-bar" role="tablist" aria-label="Pipeline stages">
+                <button class="tab active" role="tab" aria-selected="true" data-panel="panel1">01 Mirror Grid</button>
+                <button class="tab" role="tab" aria-selected="false" data-panel="panel2">02 Vertical</button>
+                <button class="tab" role="tab" aria-selected="false" data-panel="panel3">03 Horizontal</button>
+                <button class="tab" role="tab" aria-selected="false" data-panel="panel4">04 Final</button>
+            </div>
+
+            <!-- Panel 1: Mirror Grid -->
+            <div class="panel active" id="panel1" role="tabpanel">
+                <div class="panel-head">
+                    <h2 class="panel-title">Mirror Grid <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--fg-muted);font-weight:300;margin-left:12px;">2×2 composite</span></h2>
+                    <p class="panel-desc">Four quadrants: normal · horizontal flip · vertical flip · both</p>
                 </div>
                 <div class="canvas-grid">
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep1tl"></canvas>
-                        <div class="canvas-label">Normal (Top-Left)</div>
-                    </div>
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep1tr"></canvas>
-                        <div class="canvas-label">Horizontally Mirrored (Top-Right)</div>
-                    </div>
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep1bl"></canvas>
-                        <div class="canvas-label">Vertically Mirrored (Bottom-Left)</div>
-                    </div>
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep1br"></canvas>
-                        <div class="canvas-label">Both Mirrored (Bottom-Right)</div>
-                    </div>
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep1"></canvas>
-                        <div class="canvas-label">Complete 2×2 Grid</div>
-                    </div>
+                    <div class="canvas-card"><canvas id="c1tl"></canvas><div class="canvas-meta">Top-Left · Normal</div></div>
+                    <div class="canvas-card"><canvas id="c1tr"></canvas><div class="canvas-meta">Top-Right · H-Flip</div></div>
+                    <div class="canvas-card"><canvas id="c1bl"></canvas><div class="canvas-meta">Bottom-Left · V-Flip</div></div>
+                    <div class="canvas-card"><canvas id="c1br"></canvas><div class="canvas-meta">Bottom-Right · Both</div></div>
+                    <div class="canvas-card"><canvas id="c1full"></canvas><div class="canvas-meta">Complete Grid</div></div>
                 </div>
             </div>
 
-            <!-- Step 2: Vertical split - recombine from sides -->
-            <div class="result-row">
-                <div class="result-header">
-                    <div class="result-number">2</div>
-                    <h2 class="result-title">Vertical Strip Recombination</h2>
-                    <p class="result-desc">40px strips recombined from alternating left/right edges</p>
+            <!-- Panel 2: Vertical Strips -->
+            <div class="panel" id="panel2" role="tabpanel">
+                <div class="panel-head">
+                    <h2 class="panel-title">Vertical Strips <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--fg-muted);font-weight:300;margin-left:12px;">40px strips · L→R alternation</span></h2>
+                    <p class="panel-desc">Split into 40px columns, recombine alternating from left and right edges inward</p>
                 </div>
                 <div class="canvas-grid">
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep2a"></canvas>
-                        <div class="canvas-label">Split into 40px vertical strips</div>
-                    </div>
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep2b"></canvas>
-                        <div class="canvas-label">Recombined (left, right, left+1, right-1…)</div>
-                    </div>
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep2c"></canvas>
-                        <div class="canvas-label">Joined result</div>
-                    </div>
+                    <div class="canvas-card"><canvas id="c2a"></canvas><div class="canvas-meta">Split View</div></div>
+                    <div class="canvas-card"><canvas id="c2b"></canvas><div class="canvas-meta">Recombined</div></div>
+                    <div class="canvas-card"><canvas id="c2c"></canvas><div class="canvas-meta">Joined Result</div></div>
                 </div>
             </div>
 
-            <!-- Step 3: Horizontal split - remove odd rows -->
-            <div class="result-row">
-                <div class="result-header">
-                    <div class="result-number">3</div>
-                    <h2 class="result-title">Horizontal Strip Recombination</h2>
-                    <p class="result-desc">40px strips recombined from alternating top/bottom edges</p>
+            <!-- Panel 3: Horizontal Strips -->
+            <div class="panel" id="panel3" role="tabpanel">
+                <div class="panel-head">
+                    <h2 class="panel-title">Horizontal Strips <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--fg-muted);font-weight:300;margin-left:12px;">40px strips · T→B alternation</span></h2>
+                    <p class="panel-desc">Split into 40px rows, recombine alternating from top and bottom edges inward</p>
                 </div>
                 <div class="canvas-grid">
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep3a"></canvas>
-                        <div class="canvas-label">Split into horizontal strips</div>
-                    </div>
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep3b"></canvas>
-                        <div class="canvas-label">Recombined (top, bottom, top+1, bottom-1…)</div>
-                    </div>
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasStep3c"></canvas>
-                        <div class="canvas-label">Joined result</div>
-                    </div>
+                    <div class="canvas-card"><canvas id="c3a"></canvas><div class="canvas-meta">Split View</div></div>
+                    <div class="canvas-card"><canvas id="c3b"></canvas><div class="canvas-meta">Recombined</div></div>
+                    <div class="canvas-card"><canvas id="c3c"></canvas><div class="canvas-meta">Joined Result</div></div>
                 </div>
             </div>
 
-            <!-- Step 4: Final -->
-            <div class="result-row">
-                <div class="result-header">
-                    <div class="result-number">4</div>
-                    <h2 class="result-title">Final Glitch Art</h2>
-                    <p class="result-desc">Download your processed creation</p>
+            <!-- Panel 4: Final -->
+            <div class="panel" id="panel4" role="tabpanel">
+                <div class="panel-head">
+                    <h2 class="panel-title">Final Output</h2>
+                    <p class="panel-desc">Download the processed result as PNG</p>
                 </div>
                 <div class="canvas-grid">
-                    <div class="canvas-wrapper">
-                        <canvas id="canvasFinal"></canvas>
-                        <div class="canvas-label">Final processed image</div>
-                    </div>
+                    <div class="canvas-card"><canvas id="cFinal"></canvas><div class="canvas-meta">Final Glitch Art</div></div>
                 </div>
-                <div class="download-section">
-                    <button class="download-btn" id="downloadBtn" disabled aria-label="Download final image">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        Download Final Image
+                <div class="download-wrap">
+                    <button class="btn-dl" id="downloadBtn" disabled aria-label="Download final image">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download PNG
                     </button>
                 </div>
             </div>
         </section>
 
         <footer>
-            <p>Built with vanilla HTML/CSS/JS · HTML5 Canvas API · No dependencies</p>
-            <p><a href="https://github.com/AyushShukla73/digital-geometric-glitch-art" target="_blank" rel="noopener">View on GitHub</a> · <a href="https://ayushshukla73.github.io/digital-geometric-glitch-art/" target="_blank" rel="noopener">Live Demo</a></p>
+            <span>Glitch Lab — built with vanilla JS + Canvas API</span>
+            <a href="https://github.com/AyushShukla73/digital-geometric-glitch-art" target="_blank" rel="noopener">GitHub</a>
         </footer>
     </div>
 
-    <div class="loading-overlay" id="loadingOverlay" aria-live="assertive" aria-busy="true">
-        <div class="spinner"></div>
-        <div class="loading-text">Processing Image</div>
-        <div class="loading-subtext">Applying geometric glitch transformations…</div>
+    <div class="loader" id="loader" aria-live="assertive" aria-busy="true">
+        <div class="loader-ring"></div>
+        <p class="loader-text">Processing</p>
+        <p class="loader-sub">Applying transformations…</p>
     </div>
 
     <script>
-        const uploadArea = document.getElementById('uploadArea');
+        const uploadCard = document.getElementById('uploadCard');
         const fileInput = document.getElementById('fileInput');
         const results = document.getElementById('results');
         const downloadBtn = document.getElementById('downloadBtn');
-        const progressContainer = document.getElementById('progressContainer');
-        const progressFill = document.getElementById('progressFill');
+        const progressWrap = document.getElementById('progressWrap');
+        const progressBar = document.getElementById('progressBar');
         const progressLabel = document.getElementById('progressLabel');
         const progressPercent = document.getElementById('progressPercent');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const pipelineSteps = document.querySelectorAll('.pipeline-step');
+        const loader = document.getElementById('loader');
+        const pipeSteps = document.querySelectorAll('.pipe-step');
+        const tabs = document.querySelectorAll('.tab');
+        const panels = document.querySelectorAll('.panel');
 
-        let finalImageDataUrl = null;
-        let currentStep = 0;
+        let finalDataUrl = null;
 
-        function updatePipeline(step, status) {
-            pipelineSteps.forEach((el, i) => {
+        function setPipe(step, state) {
+            pipeSteps.forEach((el, i) => {
                 el.classList.remove('active', 'completed');
-                if (i < step - 1) {
-                    el.classList.add('completed');
-                } else if (i === step - 1 && status === 'active') {
-                    el.classList.add('active');
-                }
+                if (i < step - 1) el.classList.add('completed');
+                else if (i === step - 1 && state === 'active') el.classList.add('active');
             });
         }
 
-        function showProgress(label, percent) {
-            progressContainer.classList.add('visible');
+        function showProgress(label, pct) {
+            progressWrap.classList.add('visible');
             progressLabel.textContent = label;
-            progressFill.style.width = percent + '%';
-            progressPercent.textContent = percent + '%';
+            progressBar.style.width = pct + '%';
+            progressPercent.textContent = pct + '%';
         }
 
         function hideProgress() {
-            progressContainer.classList.remove('visible');
-            progressFill.style.width = '0%';
+            progressWrap.classList.remove('visible');
+            progressBar.style.width = '0%';
         }
 
-        function showLoading() {
-            loadingOverlay.classList.add('visible');
-            document.body.style.overflow = 'hidden';
+        function showLoader() { loader.classList.add('visible'); document.body.style.overflow = 'hidden'; }
+        function hideLoader() { loader.classList.remove('visible'); document.body.style.overflow = ''; }
+
+        function switchTab(targetId) {
+            tabs.forEach(t => {
+                t.classList.toggle('active', t.dataset.panel === targetId);
+                t.setAttribute('aria-selected', t.dataset.panel === targetId);
+            });
+            panels.forEach(p => p.classList.toggle('active', p.id === targetId));
         }
 
-        function hideLoading() {
-            loadingOverlay.classList.remove('visible');
-            document.body.style.overflow = '';
-        }
+        tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.panel)));
 
-        // Upload handling
-        uploadArea.addEventListener('click', (e) => {
-            if (e.target !== fileInput) {
-                fileInput.click();
-            }
+        /* Upload */
+        uploadCard.addEventListener('click', e => { if (e.target !== fileInput) fileInput.click(); });
+        uploadCard.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+        uploadCard.addEventListener('dragover', e => { e.preventDefault(); uploadCard.classList.add('dragover'); });
+        uploadCard.addEventListener('dragleave', () => uploadCard.classList.remove('dragover'));
+        uploadCard.addEventListener('drop', e => {
+            e.preventDefault(); uploadCard.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
         });
-
-        uploadArea.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                fileInput.click();
-            }
-        });
-
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files[0]) {
-                handleFile(e.dataTransfer.files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files[0]) {
-                handleFile(e.target.files[0]);
-            }
-        });
+        fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
 
         function handleFile(file) {
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file');
-                return;
-            }
+            if (!file.type.startsWith('image/')) return alert('Select an image file');
 
-            // Reset state
             results.classList.remove('visible');
             downloadBtn.disabled = true;
-            finalImageDataUrl = null;
-            currentStep = 0;
-            pipelineSteps.forEach(el => el.classList.remove('active', 'completed'));
+            finalDataUrl = null;
+            pipeSteps.forEach(el => el.classList.remove('active', 'completed'));
+            switchTab('panel1');
 
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = e => {
                 const img = new Image();
-                img.onload = () => {
-                    showLoading();
-                    // Small delay to show loading overlay
-                    setTimeout(() => processImage(img), 50);
-                };
+                img.onload = () => { showLoader(); setTimeout(() => process(img), 50); };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function processImage(img) {
-            const originalWidth = img.width;
-            const originalHeight = img.height;
+        function process(img) {
+            const W = img.width, H = img.height;
 
-            // Step 1: Create 2x2 mirrored image
-            showProgress('Creating 2×2 mirror grid…', 15);
-            updatePipeline(1, 'active');
+            /* Step 1: 2×2 Mirror */
+            showProgress('Mirror grid…', 12); setPipe(1, 'active');
 
-            const step1Canvas = document.getElementById('canvasStep1');
-            step1Canvas.width = originalWidth * 2;
-            step1Canvas.height = originalHeight * 2;
-            const ctx1 = step1Canvas.getContext('2d');
+            const s1 = document.getElementById('c1full');
+            s1.width = W * 2; s1.height = H * 2;
+            const c1 = s1.getContext('2d');
+            c1.drawImage(img, 0, 0);
+            c1.save(); c1.translate(W * 2, 0); c1.scale(-1, 1); c1.drawImage(img, 0, 0); c1.restore();
+            c1.save(); c1.translate(0, H * 2); c1.scale(1, -1); c1.drawImage(img, 0, 0); c1.restore();
+            c1.save(); c1.translate(W * 2, H * 2); c1.scale(-1, -1); c1.drawImage(img, 0, 0); c1.restore();
 
-            // Top-left: normal
-            ctx1.drawImage(img, 0, 0);
+            // Quadrants
+            const q = (id, tx, ty, sx, sy) => {
+                const cv = document.getElementById(id);
+                cv.width = W; cv.height = H;
+                const cx = cv.getContext('2d');
+                cx.save(); cx.translate(tx, ty); cx.scale(sx, sy); cx.drawImage(img, 0, 0); cx.restore();
+            };
+            q('c1tl', 0, 0, 1, 1);
+            q('c1tr', W, 0, -1, 1);
+            q('c1bl', 0, H, 1, -1);
+            q('c1br', W, H, -1, -1);
 
-            // Top-right: horizontally mirrored (flip horizontal)
-            ctx1.save();
-            ctx1.translate(originalWidth * 2, 0);
-            ctx1.scale(-1, 1);
-            ctx1.drawImage(img, 0, 0);
-            ctx1.restore();
+            setPipe(1, 'completed');
 
-            // Bottom-left: vertically mirrored (flip vertical)
-            ctx1.save();
-            ctx1.translate(0, originalHeight * 2);
-            ctx1.scale(1, -1);
-            ctx1.drawImage(img, 0, 0);
-            ctx1.restore();
+            /* Step 2: Vertical strips */
+            showProgress('Vertical strips…', 32); setPipe(2, 'active');
+            const stripW = 40;
+            const nV = Math.ceil(s1.width / stripW);
 
-            // Bottom-right: both horizontally and vertically mirrored
-            ctx1.save();
-            ctx1.translate(originalWidth * 2, originalHeight * 2);
-            ctx1.scale(-1, -1);
-            ctx1.drawImage(img, 0, 0);
-            ctx1.restore();
+            // 2a: split lines
+            const s2a = document.getElementById('c2a');
+            s2a.width = s1.width; s2a.height = s1.height;
+            const c2a = s2a.getContext('2d');
+            c2a.drawImage(s1, 0, 0);
+            c2a.strokeStyle = 'rgba(232,255,0,0.5)'; c2a.lineWidth = 1.5;
+            for (let i = 1; i < nV; i++) { const x = i * stripW; c2a.beginPath(); c2a.moveTo(x, 0); c2a.lineTo(x, s1.height); c2a.stroke(); }
 
-            // Individual quadrant canvases
-            const tlCanvas = document.getElementById('canvasStep1tl');
-            tlCanvas.width = originalWidth;
-            tlCanvas.height = originalHeight;
-            tlCanvas.getContext('2d').drawImage(img, 0, 0);
-
-            const trCanvas = document.getElementById('canvasStep1tr');
-            trCanvas.width = originalWidth;
-            trCanvas.height = originalHeight;
-            const trCtx = trCanvas.getContext('2d');
-            trCtx.save();
-            trCtx.translate(originalWidth, 0);
-            trCtx.scale(-1, 1);
-            trCtx.drawImage(img, 0, 0);
-            trCtx.restore();
-
-            const blCanvas = document.getElementById('canvasStep1bl');
-            blCanvas.width = originalWidth;
-            blCanvas.height = originalHeight;
-            const blCtx = blCanvas.getContext('2d');
-            blCtx.save();
-            blCtx.translate(0, originalHeight);
-            blCtx.scale(1, -1);
-            blCtx.drawImage(img, 0, 0);
-            blCtx.restore();
-
-            const brCanvas = document.getElementById('canvasStep1br');
-            brCanvas.width = originalWidth;
-            brCanvas.height = originalHeight;
-            const brCtx = brCanvas.getContext('2d');
-            brCtx.save();
-            brCtx.translate(originalWidth, originalHeight);
-            brCtx.scale(-1, -1);
-            brCtx.drawImage(img, 0, 0);
-            brCtx.restore();
-
-            updatePipeline(1, 'completed');
-
-            // Step 2: Vertical split - split into 40px strips, recombine from sides alternating
-            showProgress('Splitting into vertical strips…', 35);
-            updatePipeline(2, 'active');
-
-            const stripWidth = 40;
-            const numVerticalStrips = Math.ceil(step1Canvas.width / stripWidth);
-
-            // 2a: Show split strips
-            const step2aCanvas = document.getElementById('canvasStep2a');
-            step2aCanvas.width = step1Canvas.width;
-            step2aCanvas.height = step1Canvas.height;
-            const ctx2a = step2aCanvas.getContext('2d');
-            ctx2a.drawImage(step1Canvas, 0, 0);
-            ctx2a.strokeStyle = 'rgba(0, 255, 200, 0.6)';
-            ctx2a.lineWidth = 2;
-            for (let i = 1; i < numVerticalStrips; i++) {
-                const x = i * stripWidth;
-                ctx2a.beginPath();
-                ctx2a.moveTo(x, 0);
-                ctx2a.lineTo(x, step1Canvas.height);
-                ctx2a.stroke();
+            // 2b: recombine L/R
+            showProgress('Recombining vertical…', 48);
+            const s2b = document.getElementById('c2b');
+            s2b.width = s1.width; s2b.height = s1.height;
+            const c2b = s2b.getContext('2d');
+            let li = 0, ri = nV - 1, dx = 0, tog = true;
+            while (li <= ri) {
+                let sx = tog ? li * stripW : ri * stripW;
+                let sw = Math.min(stripW, s1.width - sx);
+                c2b.drawImage(s1, sx, 0, sw, s1.height, dx, 0, sw, s1.height);
+                dx += sw; tog ? li++ : ri--; tog = !tog;
             }
 
-            showProgress('Recombining vertical strips…', 50);
+            // 2c: joined
+            const s2c = document.getElementById('c2c');
+            s2c.width = s2b.width; s2c.height = s2b.height;
+            s2c.getContext('2d').drawImage(s2b, 0, 0);
 
-            // 2b: Recombine by taking from alternating sides (left, right, left+1, right-1, ...)
-            const step2bCanvas = document.getElementById('canvasStep2b');
-            step2bCanvas.width = step1Canvas.width;
-            step2bCanvas.height = step1Canvas.height;
-            const ctx2b = step2bCanvas.getContext('2d');
+            setPipe(2, 'completed');
 
-            let leftIdx = 0;
-            let rightIdx = numVerticalStrips - 1;
-            let destX = 0;
-            let toggle = true;
+            /* Step 3: Horizontal strips */
+            showProgress('Horizontal strips…', 64); setPipe(3, 'active');
+            const stripH = 40;
+            const nH = Math.ceil(s2c.height / stripH);
 
-            while (leftIdx <= rightIdx) {
-                let srcX;
-                let currentStripWidth;
+            // 3a: split lines
+            const s3a = document.getElementById('c3a');
+            s3a.width = s2c.width; s3a.height = s2c.height;
+            const c3a = s3a.getContext('2d');
+            c3a.drawImage(s2c, 0, 0);
+            c3a.strokeStyle = 'rgba(232,255,0,0.5)'; c3a.lineWidth = 1.5;
+            for (let i = 1; i < nH; i++) { const y = i * stripH; c3a.beginPath(); c3a.moveTo(0, y); c3a.lineTo(s2c.width, y); c3a.stroke(); }
 
-                if (toggle) {
-                    srcX = leftIdx * stripWidth;
-                    currentStripWidth = Math.min(stripWidth, step1Canvas.width - srcX);
-                    leftIdx++;
-                } else {
-                    srcX = rightIdx * stripWidth;
-                    currentStripWidth = Math.min(stripWidth, step1Canvas.width - srcX);
-                    rightIdx--;
-                }
-
-                ctx2b.drawImage(step1Canvas, srcX, 0, currentStripWidth, step1Canvas.height, destX, 0, currentStripWidth, step1Canvas.height);
-                destX += currentStripWidth;
-                toggle = !toggle;
+            // 3b: recombine T/B
+            showProgress('Recombining horizontal…', 80);
+            const s3b = document.getElementById('c3b');
+            s3b.width = s2c.width; s3b.height = s2c.height;
+            const c3b = s3b.getContext('2d');
+            let ti = 0, bi = nH - 1, dy = 0, togH = true;
+            while (ti <= bi) {
+                let sy = togH ? ti * stripH : bi * stripH;
+                let sh = Math.min(stripH, s2c.height - sy);
+                c3b.drawImage(s2c, 0, sy, s2c.width, sh, 0, dy, s2c.width, sh);
+                dy += sh; togH ? ti++ : bi--; togH = !togH;
             }
 
-            // 2c: Joined result (same as 2b)
-            const step2cCanvas = document.getElementById('canvasStep2c');
-            step2cCanvas.width = step2bCanvas.width;
-            step2cCanvas.height = step2bCanvas.height;
-            const ctx2c = step2cCanvas.getContext('2d');
-            ctx2c.drawImage(step2bCanvas, 0, 0);
+            // 3c: joined
+            const s3c = document.getElementById('c3c');
+            s3c.width = s3b.width; s3c.height = s3b.height;
+            s3c.getContext('2d').drawImage(s3b, 0, 0);
 
-            updatePipeline(2, 'completed');
+            setPipe(3, 'completed');
 
-            // Step 3: Horizontal split - split into 40px strips, recombine from top/bottom sides alternating
-            showProgress('Splitting into horizontal strips…', 65);
-            updatePipeline(3, 'active');
+            /* Step 4: Final */
+            showProgress('Finalizing…', 92); setPipe(4, 'active');
 
-            const stripHeight = 40;
-            const numHorizontalStrips = Math.ceil(step2cCanvas.height / stripHeight);
+            const sF = document.getElementById('cFinal');
+            sF.width = s3c.width; sF.height = s3c.height;
+            sF.getContext('2d').drawImage(s3c, 0, 0);
 
-            // 3a: Show split strips
-            const step3aCanvas = document.getElementById('canvasStep3a');
-            step3aCanvas.width = step2cCanvas.width;
-            step3aCanvas.height = step2cCanvas.height;
-            const ctx3a = step3aCanvas.getContext('2d');
-            ctx3a.drawImage(step2cCanvas, 0, 0);
-            ctx3a.strokeStyle = 'rgba(0, 255, 200, 0.6)';
-            ctx3a.lineWidth = 2;
-            for (let i = 1; i < numHorizontalStrips; i++) {
-                const y = i * stripHeight;
-                ctx3a.beginPath();
-                ctx3a.moveTo(0, y);
-                ctx3a.lineTo(step2cCanvas.width, y);
-                ctx3a.stroke();
-            }
-
-            showProgress('Recombining horizontal strips…', 80);
-
-            // 3b: Recombine by taking from alternating sides (top, bottom, top+1, bottom-1, ...)
-            const step3bCanvas = document.getElementById('canvasStep3b');
-            step3bCanvas.width = step2cCanvas.width;
-            step3bCanvas.height = step2cCanvas.height;
-            const ctx3b = step3bCanvas.getContext('2d');
-
-            let topIdx = 0;
-            let bottomIdx = numHorizontalStrips - 1;
-            let destY = 0;
-            let toggleH = true;
-
-            while (topIdx <= bottomIdx) {
-                let srcY;
-                let currentStripHeight;
-
-                if (toggleH) {
-                    srcY = topIdx * stripHeight;
-                    currentStripHeight = Math.min(stripHeight, step2cCanvas.height - srcY);
-                    topIdx++;
-                } else {
-                    srcY = bottomIdx * stripHeight;
-                    currentStripHeight = Math.min(stripHeight, step2cCanvas.height - srcY);
-                    bottomIdx--;
-                }
-
-                ctx3b.drawImage(step2cCanvas, 0, srcY, step2cCanvas.width, currentStripHeight, 0, destY, step2cCanvas.width, currentStripHeight);
-                destY += currentStripHeight;
-                toggleH = !toggleH;
-            }
-
-            // 3c: Joined result (same as 3b)
-            const step3cCanvas = document.getElementById('canvasStep3c');
-            step3cCanvas.width = step3bCanvas.width;
-            step3cCanvas.height = step3bCanvas.height;
-            const ctx3c = step3cCanvas.getContext('2d');
-            ctx3c.drawImage(step3bCanvas, 0, 0);
-
-            updatePipeline(3, 'completed');
-
-            // Step 4: Final result
-            showProgress('Finalizing…', 95);
-            updatePipeline(4, 'active');
-
-            const finalCanvas = document.getElementById('canvasFinal');
-            finalCanvas.width = step3cCanvas.width;
-            finalCanvas.height = step3cCanvas.height;
-            const finalCtx = finalCanvas.getContext('2d');
-            finalCtx.drawImage(step3cCanvas, 0, 0);
-
-            finalImageDataUrl = finalCanvas.toDataURL('image/png');
+            finalDataUrl = sF.toDataURL('image/png');
             downloadBtn.disabled = false;
 
-            showProgress('Complete!', 100);
-            updatePipeline(4, 'completed');
-
-            // Hide progress after delay
-            setTimeout(() => {
-                hideProgress();
-                hideLoading();
-                results.classList.add('visible');
-            }, 500);
+            showProgress('Done', 100); setPipe(4, 'completed');
+            setTimeout(() => { hideProgress(); hideLoader(); results.classList.add('visible'); }, 400);
         }
 
         downloadBtn.addEventListener('click', () => {
-            if (finalImageDataUrl) {
+            if (finalDataUrl) {
                 const a = document.createElement('a');
-                a.href = finalImageDataUrl;
-                a.download = 'geometric-glitch-art.png';
+                a.href = finalDataUrl;
+                a.download = 'glitch-lab-output.png';
                 a.click();
             }
         });
