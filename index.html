@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Mirror & Split Processor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #007bff;
+            background: #f0f7ff;
+        }
+        .upload-area input {
+            display: none;
+        }
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .step {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            line-height: 30px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .step-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .step-desc {
+            font-size: 13px;
+            color: #666;
+        }
+        .results {
+            display: none;
+        }
+        .results.visible {
+            display: block;
+        }
+        .result-row {
+            margin-bottom: 30px;
+        }
+        .result-row h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+        }
+        .canvas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .canvas-wrapper {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #eee;
+        }
+        .canvas-wrapper canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .canvas-label {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 8px;
+        }
+        .download-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .download-btn:hover {
+            background: #0056b3;
+        }
+        .download-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Image Mirror & Split Processor</h1>
+        <p class="subtitle">Upload an image to see the transformation pipeline</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-title">Mirror 2×2</div>
+                <div class="step-desc">Normal | Horiz. Mirror<br>Vert. Mirror | Both Mirrors</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-title">Vertical Split</div>
+                <div class="step-desc">40px strips, recombine from sides</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-title">Horizontal Split</div>
+                <div class="step-desc">Split horizontally, remove odd rows, join</div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-title">Final Result</div>
+                <div class="step-desc">Download the processed image</div>
+            </div>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <p>Click or drag & drop an image here</p>
+            <p style="font-size: 12px; color: #999; margin-top: 5px;">Supports: PNG, JPG, JPEG, WebP, GIF</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="results" id="results">
+            <!-- Step 1: 2x2 Mirror -->
+            <div class="result-row">
+                <h3>Step 1: 2×2 Mirrored</h3>
+                <div class="canvas-grid">
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep1tl"></canvas>
+                        <div class="canvas-label">Normal (Top-Left)</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep1tr"></canvas>
+                        <div class="canvas-label">Horizontally Mirrored (Top-Right)</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep1bl"></canvas>
+                        <div class="canvas-label">Vertically Mirrored (Bottom-Left)</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep1br"></canvas>
+                        <div class="canvas-label">Both Mirrored (Bottom-Right)</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep1"></canvas>
+                        <div class="canvas-label">Complete 2×2 Grid</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Vertical split - recombine from sides -->
+            <div class="result-row">
+                <h3>Step 2: Vertical Split (40px strips, recombine from sides)</h3>
+                <div class="canvas-grid">
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep2a"></canvas>
+                        <div class="canvas-label">Split into 40px vertical strips</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep2b"></canvas>
+                        <div class="canvas-label">Recombined (left, right, left+1, right-1...)</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep2c"></canvas>
+                        <div class="canvas-label">Joined result</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Horizontal split - remove odd rows -->
+            <div class="result-row">
+                <h3>Step 3: Horizontal Split (keep even rows)</h3>
+                <div class="canvas-grid">
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep3a"></canvas>
+                        <div class="canvas-label">Split into horizontal strips</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep3b"></canvas>
+                        <div class="canvas-label">After removing odd strips</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasStep3c"></canvas>
+                        <div class="canvas-label">Joined result</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Final -->
+            <div class="result-row">
+                <h3>Step 4: Final Result</h3>
+                <div class="canvas-grid">
+                    <div class="canvas-wrapper">
+                        <canvas id="canvasFinal"></canvas>
+                        <div class="canvas-label">Final processed image</div>
+                    </div>
+                </div>
+                <button class="download-btn" id="downloadBtn" disabled>Download Final Image</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const results = document.getElementById('results');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let finalImageDataUrl = null;
+
+        // Upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => processImage(img);
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function processImage(img) {
+            const originalWidth = img.width;
+            const originalHeight = img.height;
+
+            // Step 1: Create 2x2 mirrored image
+            // Top-left: normal, Top-right: horizontally mirrored
+            // Bottom-left: vertically mirrored, Bottom-right: both mirrored
+            const step1Canvas = document.getElementById('canvasStep1');
+            step1Canvas.width = originalWidth * 2;
+            step1Canvas.height = originalHeight * 2;
+            const ctx1 = step1Canvas.getContext('2d');
+
+            // Top-left: normal
+            ctx1.drawImage(img, 0, 0);
+
+            // Top-right: horizontally mirrored (flip horizontal)
+            ctx1.save();
+            ctx1.translate(originalWidth * 2, 0);
+            ctx1.scale(-1, 1);
+            ctx1.drawImage(img, 0, 0);
+            ctx1.restore();
+
+            // Bottom-left: vertically mirrored (flip vertical)
+            ctx1.save();
+            ctx1.translate(0, originalHeight * 2);
+            ctx1.scale(1, -1);
+            ctx1.drawImage(img, 0, 0);
+            ctx1.restore();
+
+            // Bottom-right: both horizontally and vertically mirrored
+            ctx1.save();
+            ctx1.translate(originalWidth * 2, originalHeight * 2);
+            ctx1.scale(-1, -1);
+            ctx1.drawImage(img, 0, 0);
+            ctx1.restore();
+
+            // Individual quadrant canvases
+            const tlCanvas = document.getElementById('canvasStep1tl');
+            tlCanvas.width = originalWidth;
+            tlCanvas.height = originalHeight;
+            tlCanvas.getContext('2d').drawImage(img, 0, 0);
+
+            const trCanvas = document.getElementById('canvasStep1tr');
+            trCanvas.width = originalWidth;
+            trCanvas.height = originalHeight;
+            const trCtx = trCanvas.getContext('2d');
+            trCtx.save();
+            trCtx.translate(originalWidth, 0);
+            trCtx.scale(-1, 1);
+            trCtx.drawImage(img, 0, 0);
+            trCtx.restore();
+
+            const blCanvas = document.getElementById('canvasStep1bl');
+            blCanvas.width = originalWidth;
+            blCanvas.height = originalHeight;
+            const blCtx = blCanvas.getContext('2d');
+            blCtx.save();
+            blCtx.translate(0, originalHeight);
+            blCtx.scale(1, -1);
+            blCtx.drawImage(img, 0, 0);
+            blCtx.restore();
+
+            const brCanvas = document.getElementById('canvasStep1br');
+            brCanvas.width = originalWidth;
+            brCanvas.height = originalHeight;
+            const brCtx = brCanvas.getContext('2d');
+            brCtx.save();
+            brCtx.translate(originalWidth, originalHeight);
+            brCtx.scale(-1, -1);
+            brCtx.drawImage(img, 0, 0);
+            brCtx.restore();
+
+            // Step 2: Vertical split - split into 40px strips, recombine from sides alternating
+            const stripWidth = 40; // 40px vertical strips
+            const numVerticalStrips = Math.ceil(step1Canvas.width / stripWidth);
+
+            // 2a: Show split strips
+            const step2aCanvas = document.getElementById('canvasStep2a');
+            step2aCanvas.width = step1Canvas.width;
+            step2aCanvas.height = step1Canvas.height;
+            const ctx2a = step2aCanvas.getContext('2d');
+            ctx2a.drawImage(step1Canvas, 0, 0);
+            // Draw strip boundaries
+            ctx2a.strokeStyle = '#ff0000';
+            ctx2a.lineWidth = 2;
+            for (let i = 1; i < numVerticalStrips; i++) {
+                const x = i * stripWidth;
+                ctx2a.beginPath();
+                ctx2a.moveTo(x, 0);
+                ctx2a.lineTo(x, step1Canvas.height);
+                ctx2a.stroke();
+            }
+
+            // 2b: Recombine by taking from alternating sides (left, right, left+1, right-1, ...)
+            const step2bCanvas = document.getElementById('canvasStep2b');
+            step2bCanvas.width = step1Canvas.width;
+            step2bCanvas.height = step1Canvas.height;
+            const ctx2b = step2bCanvas.getContext('2d');
+
+            let leftIdx = 0;
+            let rightIdx = numVerticalStrips - 1;
+            let destX = 0;
+            let toggle = true; // true = take from left, false = take from right
+
+            while (leftIdx <= rightIdx) {
+                let srcX;
+                let currentStripWidth;
+
+                if (toggle) {
+                    srcX = leftIdx * stripWidth;
+                    currentStripWidth = Math.min(stripWidth, step1Canvas.width - srcX);
+                    leftIdx++;
+                } else {
+                    srcX = rightIdx * stripWidth;
+                    currentStripWidth = Math.min(stripWidth, step1Canvas.width - srcX);
+                    rightIdx--;
+                }
+
+                ctx2b.drawImage(step1Canvas, srcX, 0, currentStripWidth, step1Canvas.height, destX, 0, currentStripWidth, step1Canvas.height);
+                destX += currentStripWidth;
+                toggle = !toggle;
+            }
+
+            // 2c: Joined result (same as 2b)
+            const step2cCanvas = document.getElementById('canvasStep2c');
+            step2cCanvas.width = step2bCanvas.width;
+            step2cCanvas.height = step2bCanvas.height;
+            const ctx2c = step2cCanvas.getContext('2d');
+            ctx2c.drawImage(step2bCanvas, 0, 0);
+
+            // Step 3: Horizontal split - split into 40px strips, recombine from top/bottom sides alternating
+            const stripHeight = 40; // 40px horizontal strips
+            const numHorizontalStrips = Math.ceil(step2cCanvas.height / stripHeight);
+
+            // 3a: Show split strips
+            const step3aCanvas = document.getElementById('canvasStep3a');
+            step3aCanvas.width = step2cCanvas.width;
+            step3aCanvas.height = step2cCanvas.height;
+            const ctx3a = step3aCanvas.getContext('2d');
+            ctx3a.drawImage(step2cCanvas, 0, 0);
+            // Draw strip boundaries
+            ctx3a.strokeStyle = '#ff0000';
+            ctx3a.lineWidth = 2;
+            for (let i = 1; i < numHorizontalStrips; i++) {
+                const y = i * stripHeight;
+                ctx3a.beginPath();
+                ctx3a.moveTo(0, y);
+                ctx3a.lineTo(step2cCanvas.width, y);
+                ctx3a.stroke();
+            }
+
+            // 3b: Recombine by taking from alternating sides (top, bottom, top+1, bottom-1, ...)
+            const step3bCanvas = document.getElementById('canvasStep3b');
+            step3bCanvas.width = step2cCanvas.width;
+            step3bCanvas.height = step2cCanvas.height;
+            const ctx3b = step3bCanvas.getContext('2d');
+
+            let topIdx = 0;
+            let bottomIdx = numHorizontalStrips - 1;
+            let destY = 0;
+            let toggleH = true; // true = take from top, false = take from bottom
+
+            while (topIdx <= bottomIdx) {
+                let srcY;
+                let currentStripHeight;
+
+                if (toggleH) {
+                    srcY = topIdx * stripHeight;
+                    currentStripHeight = Math.min(stripHeight, step2cCanvas.height - srcY);
+                    topIdx++;
+                } else {
+                    srcY = bottomIdx * stripHeight;
+                    currentStripHeight = Math.min(stripHeight, step2cCanvas.height - srcY);
+                    bottomIdx--;
+                }
+
+                ctx3b.drawImage(step2cCanvas, 0, srcY, step2cCanvas.width, currentStripHeight, 0, destY, step2cCanvas.width, currentStripHeight);
+                destY += currentStripHeight;
+                toggleH = !toggleH;
+            }
+
+            // 3c: Joined result (same as 3b)
+            const step3cCanvas = document.getElementById('canvasStep3c');
+            step3cCanvas.width = step3bCanvas.width;
+            step3cCanvas.height = step3bCanvas.height;
+            const ctx3c = step3cCanvas.getContext('2d');
+            ctx3c.drawImage(step3bCanvas, 0, 0);
+
+            // Step 4: Final result
+            const finalCanvas = document.getElementById('canvasFinal');
+            finalCanvas.width = step3cCanvas.width;
+            finalCanvas.height = step3cCanvas.height;
+            const finalCtx = finalCanvas.getContext('2d');
+            finalCtx.drawImage(step3cCanvas, 0, 0);
+
+            finalImageDataUrl = finalCanvas.toDataURL('image/png');
+            downloadBtn.disabled = false;
+
+            // Show results
+            results.classList.add('visible');
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            if (finalImageDataUrl) {
+                const a = document.createElement('a');
+                a.href = finalImageDataUrl;
+                a.download = 'processed-image.png';
+                a.click();
+            }
+        });
+    </script>
+</body>
+</html>
