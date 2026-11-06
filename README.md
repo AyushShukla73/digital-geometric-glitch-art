@@ -32,6 +32,17 @@ A web-based image processing tool that transforms uploaded images through a geom
 - HTML5 Canvas API for image manipulation
 - No dependencies - runs entirely in browser
 
+## Screenshots
+
+| Step | Description |
+|------|-------------|
+| ![Step 1: 2×2 Mirror Grid](screenshots/step1-mirror-grid.png) | **2×2 Mirror Grid** — Original, horizontally mirrored, vertically mirrored, and both mirrored |
+| ![Step 2: Vertical Strip Recombination](screenshots/step2-vertical-strips.png) | **Vertical Strip Recombination** — Split into 40px strips, recombined alternating from left/right edges |
+| ![Step 3: Horizontal Strip Recombination](screenshots/step3-horizontal-strips.png) | **Horizontal Strip Recombination** — Split into 40px strips, recombined alternating from top/bottom edges |
+| ![Step 4: Final Result](screenshots/step4-final-result.png) | **Final Glitch Art** — Downloadable result after all transformations |
+
+*Add your screenshots to the `screenshots/` folder in the project root. The images above use relative paths that work on GitHub Pages.*
+
 ## Local Development
 
 ```bash
